@@ -52,3 +52,15 @@ Trong đó:
     - log: cho phép gói tin và ghi nhận lại trên file log
 
 Đối với những gói tin không khớp với rule nào cả mặc định sẽ được chấp nhận
+
+## Cấu trúc câu lệnh IPtable
+TARGET-----PROT-----OPT-----IN-----OUT----SOURCE-----DESTINATION
+
+Trong đó:
+- _target_ là hành động cần thực thi
+- _prot_ là giao thức mà các bên kết nối với nhau. Thường thì ở phần __OPT__ sẽ để trống "--"
+- _opt:_ tùy chọn thêm bớt điều kiện quét
+- _IN/OUT:_ chỉ định giao thức nào được phép ra vào của packet, như lo hay eth1-2,...any hoặc all
+- _source:_ nơi gửi yêu cầu
+- _des:_ nới kết thúc và nhận phản hồi
+
