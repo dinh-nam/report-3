@@ -69,3 +69,10 @@ Trong đó:
 
 ## Sơ đồ hoạt động của iptables
 ![](/images/Iptables.gif)
+
+Gói tin đi vào mạng A
+
+Được kiểm tra ở magle-PREROUTING nếu cần
+
+Ở nat-PREROUTING sẽ kiểm tra gói packet có cần DNAT hay ko, nếu có sẽ đổi IP đến và chuyển tiếp
+
