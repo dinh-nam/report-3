@@ -14,7 +14,7 @@ Tích hợp tốt với kernel của Linux.
 
 Có khả năng phân tích package hiệu quả. 
 
-Lọc package dựa vào MAC và một số flag trong TCP Header. 
+Lọc packet dựa vào MAC và một số flag trong TCP Header. 
 
 Cung cấp chi tiết các tùy chọn để ghi nhận sự kiện hệ thống. 
 
