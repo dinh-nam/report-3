@@ -34,7 +34,7 @@ Khi các packet trùng với điều kiện của rule, khi này sẽ được x
 
 Trong đó:
 - Table: có 4 loại khác nhau
-    - __Filter table__: đây là gói quen thuộc là sử dụng nhiều nhất, quyết định xe, gói tin có đi tới điểm an toàn không
+    - __Filter table__: đây là gói quen thuộc là sử dụng nhiều nhất, quyết định xem gói tin có đi tới điểm đích an toàn không
     - __Mangle table__: liên quan đến việc sửa head của gói tin, ví dụ chỉnh sửa giá trị các trường TTL, MTU, Type of Service
     - __NAT table__: cho phép route các gói tin đến các host khác nhau trong mạng NAT table bằng cách thay đổi IP nguồn hoặc IP đích của gói tin. Table này cho phép kết nối đến các dịch vụ không được truy cập trực tiếp được do đang trong mạng NAT
     - __Raw table__: 1 gói tin có thể thuộc một kết nối mới hoặc cũng có thể là của 1 một kết nối đã tồn tại. Table raw cho phép bạn làm việc với gói tin trước khi kernel kiểm tra trạng thái gói tin
