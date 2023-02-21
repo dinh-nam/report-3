@@ -67,3 +67,6 @@ Trong đó:
 - _source:_ nơi gửi yêu cầu
 - _des:_ nơi kết thúc và nhận phản hồi
 
+## Sơ đồ hoạt động của iptables
+![](/images/Iptables.gif)
+
