@@ -1,15 +1,15 @@
-# IP-table
+# iptabless
 ## Khái niệm 
-IPtable là ứng dụng firewall miễn phí có sẵn trên các hệ điều hành tùy biến phân phối linux
+iptabless là ứng dụng firewall miễn phí có sẵn trên các hệ điều hành tùy biến phân phối linux
 
 Chúng được thiết lập các quy tắc riêng để bảo vệ hệ thống, giám sát truy cập
 
-Khi sử dụng máy chủ, Iptables sẽ tiến hành thực thi tốt nhất nhiệm vụ ngăn chặn các truy cập không hợp lệ bằng cách sử dụng Netfilter
+Khi sử dụng máy chủ, iptabless sẽ tiến hành thực thi tốt nhất nhiệm vụ ngăn chặn các truy cập không hợp lệ bằng cách sử dụng Netfilter
 
-Iptables/Netfilter gồm 2 phần chính là phần Netfilter ở bên trong nhân Linux. Phần còn lại là Iptables nằm ở bên ngoài
+iptabless/Netfilter gồm 2 phần chính là phần Netfilter ở bên trong nhân Linux. Phần còn lại là iptabless nằm ở bên ngoài
 
-Netfilter chịu trách nhiệm lọc các gói dữ liệu ở mức IP Netfilter làm việc trực tiếp trong nhân, nhanh và giảm tốc độ của hệ thống. Iptables chỉ là Interface cho Netfilter. Cả 2 thành phần này có nhiệm vụ tương tự nhau
-## Vai trò và lợi ích của IPtable
+Netfilter chịu trách nhiệm lọc các gói dữ liệu ở mức IP Netfilter làm việc trực tiếp trong nhân, nhanh và giảm tốc độ của hệ thống. iptabless chỉ là Interface cho Netfilter. Cả 2 thành phần này có nhiệm vụ tương tự nhau
+## Vai trò và lợi ích của iptables
 Tích hợp tốt với kernel của Linux. 
 
 Có khả năng phân tích package hiệu quả. 
@@ -21,14 +21,14 @@ Cung cấp chi tiết các tùy chọn để ghi nhận sự kiện hệ thống
 Cung cấp kỹ thuật NAT. 
 
 Có khả năng ngăn chặn một số cơ chế tấn công theo kiểu DoS
-## Thành phần và chức năng trong IPtable
-IPtable sẽ giám sát mọi luồng ra vào hệ thống bằng __table__
+## Thành phần và chức năng trong iptables
+iptables sẽ giám sát mọi luồng ra vào hệ thống bằng __table__
 
-Mặc định của IPtable là cho phép mọi gói tin truyền tự do ra vào
+Mặc định của iptables là cho phép mọi gói tin truyền tự do ra vào
 
 Các __table__ có chứa toàn bộ các quy tắc được thiết lập trước đó, gọi là __chain__
 
-Các rule sẽ lọc, phân loại các data packet ra vào thông qua "netfilter", so sánh từng rule trong khi đi qua tất cả rule có ở IPtable
+Các rule sẽ lọc, phân loại các data packet ra vào thông qua "netfilter", so sánh từng rule trong khi đi qua tất cả rule có ở iptables
 
 Khi các packet trùng với điều kiện của rule, khi này sẽ được xem là __target__ và áp dụng các lệnh thực thi lên packet này
 
@@ -42,7 +42,7 @@ Trong đó:
 ![](/images/table_type.jpg)
 
 - Chain: 
-    Mỗi table được tạo với một số chains nhất định. Chains cho phép lọc gói tin tại các điểm khác nhau. Iptable có thể thiết lập với các chains sau:
+    Mỗi table được tạo với một số chains nhất định. Chains cho phép lọc gói tin tại các điểm khác nhau. iptables có thể thiết lập với các chains sau:
     - __INPUT__: rule thuộc chain này áp dụng cho các gói tin ngay trước khi các gói tin được vào hệ thống. Chain này có trong 2 table mangle và filter, Khi có 1 rule nất kì trùng với thì các actionc có thể áp dụng với packet được chọn
     - __PREROUTING__: Các rule thuộc chain này sẽ được áp dụng ngay khi gói tin vừa vào đến Network interface. Chain này chỉ có ở table NAT, raw và mangle
     - __OUTPUT__: Các rule thuộc chain này áp dụng cho các gói tin ngay khi gói tin đi ra từ hệ thống. Chain này có trong 3 table là raw, mangle và filter
@@ -51,12 +51,12 @@ Trong đó:
 - Target: hiểu đơn giản là các hành động áp dụng cho các gói tin. Đối với những gói tin trùng khớp điều kiện của rule đươc đưa ra thì sẽ được xếp vào các trường hợp sau:
     - accept: cho phép gói tin đi vào hệ thống
     - drop: loại bỏ gói tin và không gửi phản hồi
-    - reject: loại bỏ gói tin đến và phản hồi gói khác cho IPtable
+    - reject: loại bỏ gói tin đến và phản hồi gói khác cho iptables
     - log: cho phép gói tin và ghi nhận lại trên file log
 
 Đối với những gói tin không khớp với rule nào cả mặc định sẽ được chấp nhận
 
-## Cấu trúc câu lệnh IPtable
+## Cấu trúc câu lệnh iptables
 TARGET-----PROT-----OPT-----IN-----OUT----SOURCE-----DESTINATION
 
 Trong đó:
