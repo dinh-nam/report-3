@@ -69,4 +69,3 @@ Trong đó:
 
 ## Sơ đồ hoạt động của iptables
 ![](/images/Iptables.gif)
-
