@@ -34,10 +34,13 @@ Khi các packet trùng với điều kiện của rule, khi này sẽ được x
 
 Trong đó:
 - Table: có 4 loại khác nhau
-    - Filter table: đây là gói quen thuộc là sử dụng nhiều nhất, quyết định xe,mgói tin có đi tới điểm an toàn không
-    - Mangle table: liên quan đến việc sửa head của gói tin, ví dụ chỉnh sửa giá trị các trường TTL, MTU, Type of Service
-    - NAT table: cho phép route các gói tin đến các host khác nhau trong mạng NAT table cách thay đổi IP nguồn và IP đích của gói tin. Table này cho phép kết nối đến các dịch vụ không được truy cập trực tiếp được do đang trong mạng NAT
-    - Raw table: 1 gói tin có thể thuộc một kết nối mới hoặc cũng có thể là của 1 một kết nối đã tồn tại. Table raw cho phép bạn làm việc với gói tin trước khi kernel kiểm tra trạng thái gói tin
+    - __Filter table__: đây là gói quen thuộc là sử dụng nhiều nhất, quyết định xe, gói tin có đi tới điểm an toàn không
+    - __Mangle table__: liên quan đến việc sửa head của gói tin, ví dụ chỉnh sửa giá trị các trường TTL, MTU, Type of Service
+    - __NAT table__: cho phép route các gói tin đến các host khác nhau trong mạng NAT table bằng cách thay đổi IP nguồn hoặc IP đích của gói tin. Table này cho phép kết nối đến các dịch vụ không được truy cập trực tiếp được do đang trong mạng NAT
+    - __Raw table__: 1 gói tin có thể thuộc một kết nối mới hoặc cũng có thể là của 1 một kết nối đã tồn tại. Table raw cho phép bạn làm việc với gói tin trước khi kernel kiểm tra trạng thái gói tin
+
+![](/images/table_type.jpg)
+
 - Chain: 
     Mỗi table được tạo với một số chains nhất định. Chains cho phép lọc gói tin tại các điểm khác nhau. Iptable có thể thiết lập với các chains sau:
     - __INPUT__: rule thuộc chain này áp dụng cho các gói tin ngay trước khi các gói tin được vào hệ thống. Chain này có trong 2 table mangle và filter, Khi có 1 rule nất kì trùng với thì các actionc có thể áp dụng với packet được chọn
@@ -58,9 +61,9 @@ TARGET-----PROT-----OPT-----IN-----OUT----SOURCE-----DESTINATION
 
 Trong đó:
 - _target_ là hành động cần thực thi
-- _prot_ là giao thức mà các bên kết nối với nhau. Thường thì ở phần __OPT__ sẽ để trống "--"
-- _opt:_ tùy chọn thêm bớt điều kiện quét
-- _IN/OUT:_ chỉ định giao thức nào được phép ra vào của packet, như lo hay eth1-2,...any hoặc all
+- _prot_ là giao thức mà các bên kết nối với nhau 
+- _opt:_ tùy chọn thêm bớt điều kiện quét. Thường thì ở phần __OPT__ sẽ để trống __"--"__
+- _IN/OUT:_ chỉ định giao thức nào được phép ra vào của packet, như `lo` hay `eth1`, `eth2`,...`any` hoặc `all`
 - _source:_ nơi gửi yêu cầu
-- _des:_ nới kết thúc và nhận phản hồi
+- _des:_ nơi kết thúc và nhận phản hồi
 
