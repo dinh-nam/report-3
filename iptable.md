@@ -1,14 +1,14 @@
-# iptabless
+# iptables
 ## Khái niệm 
-iptabless là ứng dụng firewall miễn phí có sẵn trên các hệ điều hành tùy biến phân phối linux
+iptables là ứng dụng firewall miễn phí có sẵn trên các hệ điều hành tùy biến phân phối linux
 
 Chúng được thiết lập các quy tắc riêng để bảo vệ hệ thống, giám sát truy cập
 
-Khi sử dụng máy chủ, iptabless sẽ tiến hành thực thi tốt nhất nhiệm vụ ngăn chặn các truy cập không hợp lệ bằng cách sử dụng Netfilter
+Khi sử dụng máy chủ, iptables sẽ tiến hành thực thi tốt nhất nhiệm vụ ngăn chặn các truy cập không hợp lệ bằng cách sử dụng Netfilter
 
-iptabless/Netfilter gồm 2 phần chính là phần Netfilter ở bên trong nhân Linux. Phần còn lại là iptabless nằm ở bên ngoài
+iptables/Netfilter gồm 2 phần chính là phần Netfilter ở bên trong nhân Linux. Phần còn lại là iptables nằm ở bên ngoài
 
-Netfilter chịu trách nhiệm lọc các gói dữ liệu ở mức IP Netfilter làm việc trực tiếp trong nhân, nhanh và giảm tốc độ của hệ thống. iptabless chỉ là Interface cho Netfilter. Cả 2 thành phần này có nhiệm vụ tương tự nhau
+Netfilter chịu trách nhiệm lọc các gói dữ liệu ở mức IP Netfilter làm việc trực tiếp trong nhân, nhanh và giảm tốc độ của hệ thống. iptables chỉ là Interface cho Netfilter. Cả 2 thành phần này có nhiệm vụ tương tự nhau
 ## Vai trò và lợi ích của iptables
 Tích hợp tốt với kernel của Linux. 
 
