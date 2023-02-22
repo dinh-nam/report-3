@@ -89,11 +89,11 @@ Gói tin đi vào mạng A
 
 Ở nat-PREROUTING sẽ kiểm tra gói packet có cần DNAT hay ko, nếu có sẽ đổi IP đến và chuyển tiếp
 
-Sau khi qua bước định tuyến sẽ đến với lọc gói
+Sau khi qua bước định tuyến sẽ đến với lọc gói:
 
-Nếu gói tin định hướng đi vào mạng được bảo vệ, khi này nó sẽ được lọc bởi FORWARD chain của filter table
+Nếu gói tin định hướng đi vào mạng được bảo vệ B, khi này nó sẽ được lọc bởi FORWARD chain của filter table
 
-Thay đổi ip-source ở POSTROUTING chain trước khi chuyển tiếp vào mạng bảo vệ
+Thay đổi ip-source ở POSTROUTING chain trước khi chuyển tiếp vào mạng bảo vệ B
 
 Ngược lại nếu gói tin đi vào trong firewall, nó sẽ được kiểm tra tại mangle table và INPUT chain
 
@@ -104,4 +104,13 @@ Khi firewall cần gửi dữ liệu ra ngoài. Gói dữ liệu sẽ được q
 Tiếp đó là kiểm tra trong OUTPUT chain của nat table để xem DNAT có cần hay không và OUTPUT chain của filter table sẽ kiểm tra gói dữ liệu nhằm phát hiện các gói dữ liệu không được phép gởi đi.
 
 Cuối cùng trước khi gói dữ liệu được đưa ra lại Internet, SNAT and QoS sẽ được kiểm tra trong POSTROUTING chain
+
+## Các tình huống 
+Đường đi của gói tin có destination là ip-server
+
+Gói tin từ server đi ra 
+
+Cách server xử lý gói tin khi có des là IP khác server
+
+![](/images/Iptables-Flow.png)
 
