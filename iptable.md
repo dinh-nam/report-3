@@ -114,3 +114,101 @@ Cách server xử lý gói tin khi có des là IP khác server
 
 ![](/images/Iptables-Flow.png)
 
+# TCPdump
+## Khái niệm
+Công cụ được phát triển nhằm mục đích kiểm tra và nắm bắt các gói mạng đi vào và ra khỏi máy tính. 
+
+Đây là một trong những tiện ích mạng phổ biến nhất để khắc phục sự cố mạng và sự cố bảo mật
+
+tcpdum cho phép chặn và hiển thị các gói tin được truyền đi hoặc được nhận trên một mạng mà máy tính có tham gia
+
+Dù có tên tcpdump nhưng nó có thể được sử dụng để kiểm tra lưu lượng không phải TCP bao gồm UDP, ARP hoặc ICMP
+## Cài đặt và sử dụng
+Thông thường ở OS như Ubuntu công cụ tcpdump sẽ có sẵn
+
+Tuy nhiên vẫn có 1 số version của nó hoặc bản OS khác phải cài đặt thủ công như CentOS hay Kali Linux,...
+
+Ubuntu: `sudo apt-get install tcpdump -y`
+
+CentOS: `yum install tcpdump -y`
+
+Để biết được công cụ đã có sẵn hay chưa, chỉ cần kiểm tra version của nó
+```
+sudo tcpdump --version
+```
+Sau đó kết quả sẽ trả về thông tin phiên bản nếu công cụ đã được cài sẵn và ngược lại
+
+### ------------------------------------- Bắt gói tin trên đường mạng -------------------------------------------
+
+Khi dùng lệnh tcpdump mà không có bất cứ điều kiện đi kèm, nó sẽ tự bắt toàn bộ các packet đang ra vào chính thiết bị có nối mạng của user 
+```
+sudo tcpdump
+```
+Quá trình chỉ dừng khi user hủy trực tiếp bằng tổ hợp Crtl-C, kết quả thống kê sẽ được trả về như sau:
+
+- Packet captured: số lượng gói tin bắt được và xử lý.
+- Packet received by filter: số lượng gói tin được nhận bởi bộ lọc.
+- Packet dropped by kernel: số lượng packet đã bị dropped bởi cơ chế bắt gói tin của hệ điều hành
+
+Cấu trúc chung của dòng lệnh tcpdump thường là:
+```
+time-stamp src > dst: flags data-seqno ack window urgent options
+```
+time-stamp: thời gian bắt packet
+
+src / dst: ip nguồn và ip đích
+
+flags: bao gồm
+
+    S(SYN): dùng trong quá trình bắt tay của giao thức TCP
+    ACK: gói phản hồi từ ip đích thông báo nhận thành công
+    F(FIN): đóng kết nối TCP
+    P(PUSH): đặt ở cuối để đánh dấu việc truyền dữ liệu
+    R(RST): dùng khi thiết lập lại đường truyền
+data-seqno: số sequence của packet hiện tại
+
+ack: Mô tả số sequence mong muốn tiếp theo của gói tin do bên gửi truyền
+
+window: Vùng nhớ đệm có sẵn theo hướng khác trên kết nối này
+
+urgent: có gói dữ liệu khẩn bên trong
+
+option : tùy chọn đi kèm
+
+    -i : chỉ định cổng giao tiếp mạng (eth, lo,...)
+    -c : chỉ định số packet cần giám sát
+    -A : chỉ định hiển thị packet ở form ASCII
+    -D : hiển thị toàn bộ cổng giao tiếp đang hoạt động
+    -xx : bắt dữ liệu từng packet, bao gồm mức liên kết header ở cả form hex và ASCII
+    -w : tính năng cho phép bắt packet và lưu file dữ liệu có đuôi ".pcap"
+    -r : để có thể đọc và phân tích file có đuôi ".pcap"
+    -n : bắt gói tin trên cổng giao tiếp được chỉ định,
+        option "port" để chỉ định thêm cổng kết nối
+        option "tcp" chỉ bắt các packet dựa trên giao thức này
+Ngoài ra có thể kết hợp cùng các bộ lọc khác qua 3 cách:
+- && : thực thi nhiều lệnh
+- ||: chỉ một trong số các lệnh
+- ! : không thực thi lệnh chỉ định
+
+1 số ví dụ sử dụng lệnh của tcpdump:
+
+Bắt gói tin trên cổng eth0 và số gói chỉ dịnh là 6:
+```
+sudo tcpdump -i eth0 -c 6
+```
+Bắt gói tin tại host chỉ định có IP là 172.19.11.101 và số packet là 5:
+```
+sudo tcpdump -n host 172.19.11.101 -c 5
+```
+Bắt gói tin trên port 80:
+```
+sudo tcpdump -n port 80
+```
+Bắt gói tin truyền từ ip-nguồn/ip-đích:
+```
+sudo tcpdump -n src/dst 172.19.11.101
+```
+Bắt gói tin trên giao thức được chỉ định là udp:
+```
+sudo tcpdump -n udp
+```
