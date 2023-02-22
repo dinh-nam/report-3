@@ -67,6 +67,19 @@ Trong đó:
 - _source:_ nơi gửi yêu cầu
 - _des:_ nơi kết thúc và nhận phản hồi
 
+## Tổng quan cơ chế xử lí gói tin trong iptables
+*Mangle:* chịu trách nhiệm thay đổi các bits chất lượng dịch vụ trong TCP header như TOS (type of service), TTL (time to live), và MARK
+
+*Filter:* chịu trách nhiệm lọc gói dữ liệu. Nó gồm có 3 quy tắc nhỏ (chain) để giúp bạn thiết lập các nguyên tắc lọc gói:
+
+- Forward chain : lọc gói khi đi đến đến các server khác.
+- Input chain : lọc gói khi đi vào trong server.
+- Output chain: lọc gói khi ra khỏi server
+
+*NAT:* gồm có 2 loại:
+
+- Pre-routing chain: thay đổi __ip-des__ của gói dữ liệu khi cần thiết
+- Post-routing chain: thay đổi __ip-source__ của gói dữ liệu khi cần thiết
 ## Sơ đồ hoạt động của iptables
 ![](/images/Iptables.gif)
 
@@ -75,4 +88,20 @@ Gói tin đi vào mạng A
 Được kiểm tra ở magle-PREROUTING nếu cần
 
 Ở nat-PREROUTING sẽ kiểm tra gói packet có cần DNAT hay ko, nếu có sẽ đổi IP đến và chuyển tiếp
+
+Sau khi qua bước định tuyến sẽ đến với lọc gói
+
+Nếu gói tin định hướng đi vào mạng được bảo vệ, khi này nó sẽ được lọc bởi FORWARD chain của filter table
+
+Thay đổi ip-source ở POSTROUTING chain trước khi chuyển tiếp vào mạng bảo vệ
+
+Ngược lại nếu gói tin đi vào trong firewall, nó sẽ được kiểm tra tại mangle table và INPUT chain
+
+TIếp tục lọc gói tin tại filter table và được chuyển tiếp vào bên trong các chương trình firewall, xử lí dữ liệu cục bộ 
+
+Khi firewall cần gửi dữ liệu ra ngoài. Gói dữ liệu sẽ được qua bước định tuyến và đi qua sự kiểm tra của OUTPUT chain trong mangle table
+
+Tiếp đó là kiểm tra trong OUTPUT chain của nat table để xem DNAT có cần hay không và OUTPUT chain của filter table sẽ kiểm tra gói dữ liệu nhằm phát hiện các gói dữ liệu không được phép gởi đi.
+
+Cuối cùng trước khi gói dữ liệu được đưa ra lại Internet, SNAT and QoS sẽ được kiểm tra trong POSTROUTING chain
 
