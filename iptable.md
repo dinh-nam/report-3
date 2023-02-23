@@ -212,3 +212,30 @@ Bắt gói tin trên giao thức được chỉ định là udp:
 ```
 sudo tcpdump -n udp
 ```
+## TRACE module
+Cũng như wiresakrk hay tcpdump, TRACE có thể giám sát, đọc và phân tích các gói ra vào host qua những chain và table trong netfilter
+
+Sử dụng ổn định nhất trong CentOS
+
+Đầu tiên cần tải module xem log file ipv4 netfilter 
+```
+modprobe nf_log_ipv4
+```
+Bật ghi nhật ký cho IPv4 (AF Family 2)
+```
+sysctl net.netfilter.nf_log.2=nf_log_ipv4
+```
+Ở bước này khi user thực hiện thao tác và các packet bắt đầu được xử lý và ra vào thông qua iptables thì file log sẽ ghi lại quá trình từng bước trong hệ thống iptables
+
+Ngoài ra sau bước này có tùy chọn xem thông tin từ log của kernel:
+```
+cat /etc/rsyslog.conf | grep -e "^kern"
+systemctl restart rsyslog
+```
+Và chạy lại `rsyslog`
+
+Xem các rule đã được apply vào bảng:
+```
+iptables -t raw -L
+```
+Lúc này đã có thể đặt rule TRACE trong iptables để theo dõi các packet
