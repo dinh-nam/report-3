@@ -239,3 +239,28 @@ Xem các rule đã được apply vào bảng:
 iptables -t raw -L
 ```
 Lúc này đã có thể đặt rule TRACE trong iptables để theo dõi các packet
+
+Ví dụ: để xem các gói đi từ host 192.168.0.121 đến host có IP là 192.168.0.144
+```
+iptables -t raw -A OUTPUT -p icmp -j TRACE
+iptables -t raw -A PREROUTING -p icmp -j TRACE
+```
+Từ đây khi kết nối và thực hiện icmp giữa các host, user sẽ thấy được quá trình  liên lạc giữ các host diễn ra
+
+Đầu tiên từ host 192.168.0.121 thực hiện ping imcp qua 192.168.0.144
+
+![](/images/ping%20host.png)
+
+Tại host 192.168.0.144 mở file log TRACE để xem lại đường đi 
+
+![](/images/file%20log%20icmp.png)
+
+```
+$ sudo iptables -t raw -A PREROUTING -p tcp --destination 192.168.0.144 -j TRACE
+$ sudo iptables -t raw -A PREROUTING -p icmp --destination 192.168.0.144 -j TRACE
+```
+2 lệnh này cho phép TRACE các gói khi đi qua firewall vào bên trong hệ thống
+từ các host bất kỳ bên ngoài
+
+Ví dụ: từ host 192.168.1.100 bắt gói tin icmp kết nối 1.1.1.1
+
