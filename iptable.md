@@ -14,7 +14,7 @@ Tích hợp tốt với kernel của Linux.
 
 Có khả năng phân tích package hiệu quả. 
 
-Lọc packet dựa vào MAC và một số flag trong TCP Header. 
+Lọc packet dựa vào MAC và một số flag trong tcp Header. 
 
 Cung cấp chi tiết các tùy chọn để ghi nhận sự kiện hệ thống. 
 
@@ -68,7 +68,7 @@ Trong đó:
 - _des:_ nơi kết thúc và nhận phản hồi
 
 ## Tổng quan cơ chế xử lí gói tin trong iptables
-*Mangle:* chịu trách nhiệm thay đổi các bits chất lượng dịch vụ trong TCP header như TOS (type of service), TTL (time to live), và MARK
+*Mangle:* chịu trách nhiệm thay đổi các bits chất lượng dịch vụ trong tcp header như TOS (type of service), TTL (time to live), và MARK
 
 *Filter:* chịu trách nhiệm lọc gói dữ liệu. Nó gồm có 3 quy tắc nhỏ (chain) để giúp bạn thiết lập các nguyên tắc lọc gói:
 
@@ -114,7 +114,7 @@ Cách server xử lý gói tin khi có des là IP khác server
 
 ![](/images/Iptables-Flow.png)
 
-# TCPdump
+# tcpdump
 ## Khái niệm
 Công cụ được phát triển nhằm mục đích kiểm tra và nắm bắt các gói mạng đi vào và ra khỏi máy tính. 
 
@@ -122,7 +122,7 @@ Công cụ được phát triển nhằm mục đích kiểm tra và nắm bắt
 
 tcpdum cho phép chặn và hiển thị các gói tin được truyền đi hoặc được nhận trên một mạng mà máy tính có tham gia
 
-Dù có tên tcpdump nhưng nó có thể được sử dụng để kiểm tra lưu lượng không phải TCP bao gồm UDP, ARP hoặc ICMP
+Dù có tên tcpdump nhưng nó có thể được sử dụng để kiểm tra lưu lượng không phải tcp bao gồm UDP, ARP hoặc tcp
 ## Cài đặt và sử dụng
 Thông thường ở OS như Ubuntu công cụ tcpdump sẽ có sẵn
 
@@ -160,9 +160,9 @@ src / dst: ip nguồn và ip đích
 
 flags: bao gồm
 
-    S(SYN): dùng trong quá trình bắt tay của giao thức TCP
+    S(SYN): dùng trong quá trình bắt tay của giao thức tcp
     ACK: gói phản hồi từ ip đích thông báo nhận thành công
-    F(FIN): đóng kết nối TCP
+    F(FIN): đóng kết nối tcp
     P(PUSH): đặt ở cuối để đánh dấu việc truyền dữ liệu
     R(RST): dùng khi thiết lập lại đường truyền
 data-seqno: số sequence của packet hiện tại
@@ -242,10 +242,10 @@ Lúc này đã có thể đặt rule TRACE trong iptables để theo dõi các p
 
 Ví dụ: để xem các gói đi từ host 192.168.0.121 đến host có IP là 192.168.0.144
 ```
-iptables -t raw -A OUTPUT -p icmp -j TRACE
-iptables -t raw -A PREROUTING -p icmp -j TRACE
+iptables -t raw -A OUTPUT -p tcp -j TRACE
+iptables -t raw -A PREROUTING -p tcp -j TRACE
 ```
-Từ đây khi kết nối và thực hiện icmp giữa các host, user sẽ thấy được quá trình  liên lạc giữ các host diễn ra
+Từ đây khi kết nối và thực hiện tcp giữa các host, user sẽ thấy được quá trình  liên lạc giữ các host diễn ra
 
 Đầu tiên từ host 192.168.0.121 thực hiện ping imcp qua 192.168.0.144
 
@@ -253,16 +253,16 @@ Từ đây khi kết nối và thực hiện icmp giữa các host, user sẽ th
 
 Tại host 192.168.0.144 mở file log TRACE để xem lại đường đi 
 
-![](/images/file%20log%20icmp.png)
+![](/images/file%20log%20tcp.png)
 
 ```
 $ sudo iptables -t raw -A PREROUTING -p tcp --destination 192.168.0.144 -j TRACE
-$ sudo iptables -t raw -A PREROUTING -p icmp --destination 192.168.0.144 -j TRACE
+$ sudo iptables -t raw -A PREROUTING -p tcp --destination 192.168.0.144 -j TRACE
 ```
 2 lệnh này cho phép TRACE các gói khi đi qua firewall vào bên trong hệ thống
 từ các host bất kỳ bên ngoài
 
-Ví dụ: từ host 192.168.0.143 bắt gói tin icmp kết nối 1.1.1.1
+Ví dụ: từ host 192.168.0.143 bắt gói tin tcp kết nối 1.1.1.1
 
 ![](/images/ping%201.1.1.1.png)
 
@@ -271,34 +271,38 @@ tương tự TRACE cũng sẽ bắt gói tin đi từ host bên trong ra ngoài 
 iptables -t raw -A PREROUTING -s 192.168.0.121 -d 192.168.0.143 -j TRACE.
 iptables -t raw -A OUTPUT -s 192.168.0.121 -d 192.168.0.143 -j TRACE.
 ```
-Có thể đặt rule tương tự hoặc chỉ cần rule bắt gói tin icmp như ví dụ trước
+Có thể đặt rule tương tự hoặc chỉ cần rule bắt gói tin tcp như ví dụ trước
 
 ## Thiết lập rule iptables
 
- + Cho phép/Chặn IPX truy cập đến IP dest A.B.C.D port YYY
-```
- iptables -A INPUT -p tcp -s 192.168.0.121 -d 192.168.0.143 -dport 80 ACCEPT
- iptables -A INPUT -p tcp -s 192.168.0.121 -d 192.168.0.143 -dport 80 DROP
-```
- + Cho phép/Chặn tất cả ip mới truy cập đến IP dest A.B.C.D port YYY
- ```
- iptables -A INPUT -p tcp -d 192.168.0.143 -dport 443 ACCCEPT
- iptables -A INPUT -p tcp -d 192.168.0.143 -dport 443 DROP
- ```
- + Cho phép/Chặn ip Y.J.K.F truy cập đến IP dest A.B.C.D port YYY với TTL 128,64 và Length 1000
-```
-iptables -A INPUT -p tcp -s 192.168.0.121 -d 192.168.0.143 -dport 80 --match length ! 1:1000  --match ttl --ttl-eq 128 -j REJECT 
-iptables -A INPUT p tcp -s 192.168.0.121 -d 192.168.0.143 -dport 80 --match length ! 1:1000  --match ttl --ttl-eq 64 -j REJECT 
-```
- + Đặt comment cho 1 iptables rules bất kỳ.
- 
- Cách thêm phần chú thích vào rule thường sẽ có cấu trúc sau:
- ```
- iptables -m comment --comment "My comments here"
- ```
- Ví dụ:
+![](/images/iptables-rule.png)
 
- `iptables -A INPUT -i eth1 -m comment --comment "my LAN - " -j DROP`
+![](/images/insert-rule.png)
+
++ Cho phép/Chặn IPX truy cập đến IP dest A.B.C.D port YYY
+```
+iptables -A INPUT -p tcp -s 192.168.0.121 -d 192.168.0.143 --dport 443 -j ACCEPT
+iptables -A INPUT -p tcp -s 192.168.0.121 -d 192.168.0.143 --dport 80 -j DROP
+```
++ Cho phép/Chặn tất cả ip mới truy cập đến IP dest A.B.C.D port YYY
+```
+iptables -A INPUT -p tcp -d 192.168.0.143 --dport 443 -j ACCEPT
+iptables -A INPUT -p tcp -d 192.168.0.143 --dport 80 -j DROP
+```
++ Cho phép/Chặn ip Y.J.K.F truy cập đến IP dest A.B.C.D port YYY với TTL 128,64 và Length 1000
+```
+iptables -A INPUT -p tcp -s 192.168.0.121 -d 192.168.0.143 --dport 443 -m length --length 1000 --match ttl --ttl-eq 128 -j ACCEPT
+iptables -A INPUT p tcp -s 192.168.0.121 -d 192.168.0.143 --dport 80 -m length --length 1000 --match ttl --ttl-eq 64 -j REJECT 
+```
++ Đặt comment cho 1 iptables rules bất kỳ.
+ 
+Cách thêm phần chú thích vào rule thường sẽ có cấu trúc sau:
+```
+iptables -m comment --comment "My comments here"
+```
+Ví dụ:
+
+`iptables -A INPUT -i eth1 -m comment --comment "my LAN - " -j DROP`
 
 _Một lần thêm comment tối đa được 256 kí tự_
 
@@ -306,8 +310,7 @@ _Vị trí đặt comment chủ yếu nẳm trước phần [target]_
 
 _Khi show bảng table sẽ có cột chú thích được thêm đi kèm_
 
-Sau khi thêm rule cũng như chèn comment thì thực hiện xác nhận lại
+Sau khi thêm rule cũng như chèn comment thì thực hiện xác nhận lại:
 ```
 iptables -t filter -L INPUT -n
 ```
-
