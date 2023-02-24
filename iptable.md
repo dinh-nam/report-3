@@ -281,22 +281,24 @@ Có thể đặt rule tương tự hoặc chỉ cần rule bắt gói tin tcp nh
 
 + Cho phép/Chặn IPX truy cập đến IP dest A.B.C.D port YYY
 ```
-iptables -A INPUT -p tcp -s 192.168.0.121 -d 192.168.0.143 --dport 443 -j ACCEPT
 iptables -A INPUT -p tcp -s 192.168.0.121 -d 192.168.0.143 --dport 80 -j DROP
+iptables -A INPUT -p tcp -s 192.168.0.121 -d 192.168.0.143 --dport 443 -j ACCEPT
 ```
 + Cho phép/Chặn tất cả ip mới truy cập đến IP dest A.B.C.D port YYY
 ```
-iptables -A INPUT -p tcp -d 192.168.0.143 --dport 443 -j ACCEPT
 iptables -A INPUT -p tcp -d 192.168.0.143 --dport 80 -j DROP
+iptables -A INPUT -p tcp -d 192.168.0.143 --dport 443 -j ACCEPT
 ```
 + Cho phép/Chặn ip Y.J.K.F truy cập đến IP dest A.B.C.D port YYY với TTL 128,64 và Length 1000
 ```
-iptables -A INPUT -p tcp -s 192.168.0.121 -d 192.168.0.143 --dport 443 -m length --length 1000 --match ttl --ttl-eq 128 -j ACCEPT
 iptables -A INPUT p tcp -s 192.168.0.121 -d 192.168.0.143 --dport 80 -m length --length 1000 --match ttl --ttl-eq 64 -j REJECT 
+
+iptables -A INPUT -p tcp -s 192.168.0.121 -d 192.168.0.143 --dport 443 -m length --length 1000 --match ttl --ttl-eq 128 -j ACCEPT
 ```
-+ Đặt comment cho 1 iptables rules bất kỳ.
+__Lưu ý__: ưu tiên các rule chặn trước để lọc đầy đủ các điều kiện ban đầu hơn
+### Đặt comment cho 1 iptables rules bất kỳ.
  
-Cách thêm phần chú thích vào rule thường sẽ có cấu trúc sau:
+1. Cách thêm phần chú thích vào rule thường sẽ có cấu trúc sau:
 ```
 iptables -m comment --comment "My comments here"
 ```
@@ -313,4 +315,18 @@ _Khi show bảng table sẽ có cột chú thích được thêm đi kèm_
 Sau khi thêm rule cũng như chèn comment thì thực hiện xác nhận lại:
 ```
 iptables -t filter -L INPUT -n
+```
+2. Chèn chú thích vào rule đang có sẵn
+```
+iptables -R chain [rule-number] rule-specification [comment]
+```
+Trong đó -R: lệnh thay thế
+
+rule-number: số thứ tự của rule trong bảng iptables
+
+Ví dụ: `iptables -A INPUT -p tcp --dport 25 -j DROP` - chặn mọi kết nối ở port 25
+Để thêm comment sẽ có syntax như sau:
+```
+iptables -R INPUT 11 -p tcp --dport 25 -j DROP -m comment --comment "Block port 25"
+iptables -t filter -L INPUT -n --line-number
 ```
