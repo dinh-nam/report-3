@@ -262,5 +262,52 @@ $ sudo iptables -t raw -A PREROUTING -p icmp --destination 192.168.0.144 -j TRAC
 2 lệnh này cho phép TRACE các gói khi đi qua firewall vào bên trong hệ thống
 từ các host bất kỳ bên ngoài
 
-Ví dụ: từ host 192.168.1.100 bắt gói tin icmp kết nối 1.1.1.1
+Ví dụ: từ host 192.168.0.143 bắt gói tin icmp kết nối 1.1.1.1
+
+![](/images/ping%201.1.1.1.png)
+
+tương tự TRACE cũng sẽ bắt gói tin đi từ host bên trong ra ngoài Internet và nhận phản hồi từ bên ngoài
+```
+iptables -t raw -A PREROUTING -s 192.168.0.121 -d 192.168.0.143 -j TRACE.
+iptables -t raw -A OUTPUT -s 192.168.0.121 -d 192.168.0.143 -j TRACE.
+```
+Có thể đặt rule tương tự hoặc chỉ cần rule bắt gói tin icmp như ví dụ trước
+
+## Thiết lập rule iptables
+
+ + Cho phép/Chặn IPX truy cập đến IP dest A.B.C.D port YYY
+```
+ iptables -A INPUT -p tcp -s 192.168.0.121 -d 192.168.0.143 -dport 80 ACCEPT
+ iptables -A INPUT -p tcp -s 192.168.0.121 -d 192.168.0.143 -dport 80 DROP
+```
+ + Cho phép/Chặn tất cả ip mới truy cập đến IP dest A.B.C.D port YYY
+ ```
+ iptables -A INPUT -p tcp -d 192.168.0.143 -dport 443 ACCCEPT
+ iptables -A INPUT -p tcp -d 192.168.0.143 -dport 443 DROP
+ ```
+ + Cho phép/Chặn ip Y.J.K.F truy cập đến IP dest A.B.C.D port YYY với TTL 128,64 và Length 1000
+```
+iptables -A INPUT -p tcp -s 192.168.0.121 -d 192.168.0.143 -dport 80 --match length ! 1:1000  --match ttl --ttl-eq 128 -j REJECT 
+iptables -A INPUT p tcp -s 192.168.0.121 -d 192.168.0.143 -dport 80 --match length ! 1:1000  --match ttl --ttl-eq 64 -j REJECT 
+```
+ + Đặt comment cho 1 iptables rules bất kỳ.
+ 
+ Cách thêm phần chú thích vào rule thường sẽ có cấu trúc sau:
+ ```
+ iptables -m comment --comment "My comments here"
+ ```
+ Ví dụ:
+
+ `iptables -A INPUT -i eth1 -m comment --comment "my LAN - " -j DROP`
+
+_Một lần thêm comment tối đa được 256 kí tự_
+
+_Vị trí đặt comment chủ yếu nẳm trước phần [target]_
+
+_Khi show bảng table sẽ có cột chú thích được thêm đi kèm_
+
+Sau khi thêm rule cũng như chèn comment thì thực hiện xác nhận lại
+```
+iptables -t filter -L INPUT -n
+```
 
