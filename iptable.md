@@ -35,7 +35,7 @@ Khi các packet trùng với điều kiện của rule, khi này sẽ được x
 Trong đó:
 - Table: có 4 loại khác nhau
     - __Filter table__: đây là gói quen thuộc là sử dụng nhiều nhất, quyết định xem gói tin có đi tới điểm đích an toàn không
-    - __Mangle table__: liên quan đến việc sửa head của gói tin, ví dụ chỉnh sửa giá trị các trường TTL, MTU, Type of Service
+    - __Mangle table__: liên quan đến việc sửa header của gói tin, ví dụ chỉnh sửa giá trị các trường TTL, MTU, Type of Service
     - __NAT table__: cho phép route các gói tin đến các host khác nhau trong mạng NAT table bằng cách thay đổi IP nguồn hoặc IP đích của gói tin. Table này cho phép kết nối đến các dịch vụ không được truy cập trực tiếp được do đang trong mạng NAT
     - __Raw table__: 1 gói tin có thể thuộc một kết nối mới hoặc cũng có thể là của 1 một kết nối đã tồn tại. Table raw cho phép bạn làm việc với gói tin trước khi kernel kiểm tra trạng thái gói tin
 
@@ -43,7 +43,7 @@ Trong đó:
 
 - Chain: 
     Mỗi table được tạo với một số chains nhất định. Chains cho phép lọc gói tin tại các điểm khác nhau. iptables có thể thiết lập với các chains sau:
-    - __INPUT__: rule thuộc chain này áp dụng cho các gói tin ngay trước khi các gói tin được vào hệ thống. Chain này có trong 2 table mangle và filter, Khi có 1 rule nất kì trùng với thì các actionc có thể áp dụng với packet được chọn
+    - __INPUT__: rule thuộc chain này áp dụng cho các gói tin ngay trước khi các gói tin được vào hệ thống. Chain này có trong 2 table mangle và filter, Khi có 1 rule nất kì trùng với thì các action có thể áp dụng với packet được chọn
     - __PREROUTING__: Các rule thuộc chain này sẽ được áp dụng ngay khi gói tin vừa vào đến Network interface. Chain này chỉ có ở table NAT, raw và mangle
     - __OUTPUT__: Các rule thuộc chain này áp dụng cho các gói tin ngay khi gói tin đi ra từ hệ thống. Chain này có trong 3 table là raw, mangle và filter
     - __FORWARD__: Các rule thuộc chain này áp dụng cho các gói tin chuyển tiếp qua hệ thống. Chain này chỉ có trong 2 table mangle và table
@@ -106,11 +106,29 @@ Tiếp đó là kiểm tra trong OUTPUT chain của nat table để xem DNAT có
 Cuối cùng trước khi gói dữ liệu được đưa ra lại Internet, SNAT and QoS sẽ được kiểm tra trong POSTROUTING chain
 
 ## Các tình huống 
-Đường đi của gói tin có destination là ip-server
+** Đường đi của gói tin có destination là ip-server:
 
-Gói tin từ server đi ra 
+Đường đi của packet vẫn như cũ, tại bước lọc packet sẽ là chọn đi vào server
 
-Cách server xử lý gói tin khi có des là IP khác server
+Từ đây, packet tại bước mangle INPUT sẽ được chỉnh sửa xáo trộn trước khi được chuyển tiếp qua bước lọc filter INPUT để đối chiếu với các rule thiết lập từ trước và xem xét đến server hay bị hủy
+
+** Gói tin từ server đi ra :
+
+Từ server , packet được xếp vào bảng raw OUTPUT để kiểm tra trước khi giao vào kernel xử lý. Qua bước mangle OUTPUT packet tiếp tục chỉnh sửa để tránh các rủi ro tiềm ẩn và chuyển cho nat OUTPUT để chỉnh sửa IP nguồn
+
+Sau đó, packet qua bước routing và được xem xét trong trường hợp nat hay mangle sẽ thay đổi packet
+
+Tiếp tục đi qua bảng lọc đầu ra filter OUTPUT để so sánh các rule, qua bước mangle POTSROUTING chỉnh sửa các trường trong header của packet, đối chiếu lần nữa các rule để xem xét gói tin có đủ tiêu chuẩn ACCEPT hay DROP hoặc REJECT,...
+
+Tại bước cuối nat POTSROUTING sẽ thay đổi ip nguồn hoặc ip đích trước khi chuyển tiếp packet ra khỏi bảng, đối với các packet có SNAT hoặc `masquerading` thì nên tránh bước này
+
+** Cách server xử lý gói tin khi có des là IP khác server :
+
+Khi có gói tin đi vào hệ thống mà IP đích là thuộc về các client bên trong thì server sẽ là "proxy" và chuyển hướng đường đi về đúng vị trí cần đến
+
+Trình tự packet đi vào sẽ vẫn như cũ cho đến bước lọc gói tin, sau khi xác định gói cần forward đến nơi khác, sẽ được đẩy vào mangle FROWARD, thay đổi dữ liệu bên trong, lọc đối chiếu các rule trong hệ thống ở filter FORWARD rồi đẩy ra magle POSTROUTING
+
+Xử lý gói tin ở các bước cuối hệ thống như cũ và chuyển ra ngoài để đi vào mạng bảo vệ
 
 ![](/images/Iptables-Flow.png)
 
@@ -118,7 +136,7 @@ Cách server xử lý gói tin khi có des là IP khác server
 ## Khái niệm
 Công cụ được phát triển nhằm mục đích kiểm tra và nắm bắt các gói mạng đi vào và ra khỏi máy tính. 
 
-Đây là một trong những tiện ích mạng phổ biến nhất để khắc phục sự cố mạng và sự cố bảo mật
+Đây là một trong những tiện ích mạng phổ biến nhất để quản lý, khắc phục sự cố mạng và sự cố bảo mật
 
 tcpdum cho phép chặn và hiển thị các gói tin được truyền đi hoặc được nhận trên một mạng mà máy tính có tham gia
 
@@ -128,7 +146,7 @@ Thông thường ở OS như Ubuntu công cụ tcpdump sẽ có sẵn
 
 Tuy nhiên vẫn có 1 số version của nó hoặc bản OS khác phải cài đặt thủ công như CentOS hay Kali Linux,...
 
-Ubuntu: `sudo apt-get install tcpdump -y`
+Ubuntu: `sudo apt-get install tcpdump -y` (dành cho các version cũ)
 
 CentOS: `yum install tcpdump -y`
 
@@ -213,21 +231,21 @@ Bắt gói tin trên giao thức được chỉ định là udp:
 sudo tcpdump -n udp
 ```
 ## TRACE module
-Cũng như wiresakrk hay tcpdump, TRACE có thể giám sát, đọc và phân tích các gói ra vào host qua những chain và table trong netfilter
+Cũng như wiresakrk hay tcpdump, TRACE có thể giám sát, đọc và phân tích các gói ra vào host nhưng ở cả chain và table trong netfilter
 
-Sử dụng ổn định nhất trong CentOS
+Khuyến khích sử dụng ổn định nhất trong CentOS
 
-Đầu tiên cần tải module xem log file ipv4 netfilter 
+Đầu tiên cần tải module xem log file ipv4 netfilter :
 ```
 modprobe nf_log_ipv4
 ```
-Bật ghi nhật ký cho IPv4 (AF Family 2)
+Bật ghi nhật ký cho IPv4 (AF Family 2) :
 ```
 sysctl net.netfilter.nf_log.2=nf_log_ipv4
 ```
 Ở bước này khi user thực hiện thao tác và các packet bắt đầu được xử lý và ra vào thông qua iptables thì file log sẽ ghi lại quá trình từng bước trong hệ thống iptables
 
-Ngoài ra sau bước này có tùy chọn xem thông tin từ log của kernel:
+Ngoài ra sau bước này có option xem thông tin từ log của kernel:
 ```
 cat /etc/rsyslog.conf | grep -e "^kern"
 systemctl restart rsyslog
@@ -295,7 +313,7 @@ iptables -A INPUT p tcp -s 192.168.0.121 -d 192.168.0.143 --dport 80 -m length -
 
 iptables -A INPUT -p tcp -s 192.168.0.121 -d 192.168.0.143 --dport 443 -m length --length 1000 --match ttl --ttl-eq 128 -j ACCEPT
 ```
-__Lưu ý__: ưu tiên các rule chặn trước để lọc đầy đủ các điều kiện ban đầu hơn
+__Lưu ý__: ưu tiên các rule DROP trước các rule ACCEPT để lọc đầy đủ các điều kiện ban đầu hơn
 ### Đặt comment cho 1 iptables rules bất kỳ.
  
 1. Cách thêm phần chú thích vào rule thường sẽ có cấu trúc sau:
