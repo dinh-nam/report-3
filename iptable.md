@@ -38,6 +38,7 @@ Trong đó:
     - __Mangle table__: liên quan đến việc sửa header của gói tin, ví dụ chỉnh sửa giá trị các trường TTL, MTU, Type of Service
     - __NAT table__: cho phép route các gói tin đến các host khác nhau trong mạng NAT table bằng cách thay đổi IP nguồn hoặc IP đích của gói tin. Table này cho phép kết nối đến các dịch vụ không được truy cập trực tiếp được do đang trong mạng NAT
     - __Raw table__: 1 gói tin có thể thuộc một kết nối mới hoặc cũng có thể là của 1 một kết nối đã tồn tại. Table raw cho phép bạn làm việc với gói tin trước khi kernel kiểm tra trạng thái gói tin
+    - __Security table__: Một số Kernel có thể hỗ trợ thêm cho Security Table, được dùng bởi Selinux từ đó giúp thiết lập các chính sách bảo mật hiệu quả, đánh dấu những gói tin có liên quan đến context của SELinux, nó giúp cho SELinux hoặc các thành phần khác hiểu được context SELinux và xử lý gói tin
 
 ![](/images/table_type.jpg)
 
@@ -140,7 +141,7 @@ Công cụ được phát triển nhằm mục đích kiểm tra và nắm bắt
 
 tcpdum cho phép chặn và hiển thị các gói tin được truyền đi hoặc được nhận trên một mạng mà máy tính có tham gia
 
-Dù có tên tcpdump nhưng nó có thể được sử dụng để kiểm tra lưu lượng không phải tcp bao gồm UDP, ARP hoặc tcp
+Dù có tên tcpdump nhưng nó có thể được sử dụng để kiểm tra lưu lượng không phải tcp bao gồm UDP, ARP,...
 ## Cài đặt và sử dụng
 Thông thường ở OS như Ubuntu công cụ tcpdump sẽ có sẵn
 
@@ -284,7 +285,23 @@ Ví dụ: từ host 192.168.0.143 bắt gói tin tcp kết nối 1.1.1.1
 
 ![](/images/ping%201.1.1.1.png)
 
-tương tự TRACE cũng sẽ bắt gói tin đi từ host bên trong ra ngoài Internet và nhận phản hồi từ bên ngoài
+Trong kết quả phân tích này:
+
+Ở ip 192.168.0.143 gửi icmp đến host 1.1.1.1 và từ host sẽ gửi phản hồi về ip source, tại ip source dùng TRACE bắt gói tin thông qua iptables
+
+Cấu trúc của kết quả TRACE khi xem ở /log/message sẽ hiển thị các thông tin đầy đủ về tiến trình qua từng bước trong flow
+
+Xử lý gói tin ở mục nào, cổng giao tiếp là gì, MAC của thiết bị đang dùng TRACE, ip source và ip des, độ dài gói tin, type of service và độ ưu tiên, Time to live, ID tiến trình, giao thức thực hiện và các thông tin liên quan gói tin
+
+Vì thực hiện TRACE ở ip 192.168.0.143 nên gói tin có source là 1.1.1.1 gửi phản hồi về host hiện tại
+
+Trình tự gói tin khi đi vào host và qua iptables thì có thể thấy đang đi vào mangle PREROUTING sửa đổi các header trong gói tin
+
+Sau đó chuyển sang mangle INPUT: sửa đổi header khi chuẩn bị đi vào mạng bảo vệ
+
+Chuyển tiếp qua bước lọc security INPUT để đảm bảo gói tin này là an toàn
+
+** Tương tự TRACE cũng sẽ bắt gói tin đi từ host bên trong ra ngoài Internet và nhận phản hồi từ bên ngoài
 ```
 iptables -t raw -A PREROUTING -s 192.168.0.121 -d 192.168.0.143 -j TRACE.
 iptables -t raw -A OUTPUT -s 192.168.0.121 -d 192.168.0.143 -j TRACE.
@@ -312,6 +329,11 @@ iptables -A INPUT -p tcp -d 192.168.0.143 --dport 443 -j ACCEPT
 iptables -A INPUT p tcp -s 192.168.0.121 -d 192.168.0.143 --dport 80 -m length --length 1000 --match ttl --ttl-eq 64 -j REJECT 
 
 iptables -A INPUT -p tcp -s 192.168.0.121 -d 192.168.0.143 --dport 443 -m length --length 1000 --match ttl --ttl-eq 128 -j ACCEPT
+```
+Cho phép/Chặn IPX truy cập từ IP src A.B.C.D port YYY
+```
+iptables -A OUTPUT -p tcp -s 192.168.0.121 --dport 80 -j DROP
+iptables -A OUTPUT -p tcp -s 192.168.0.121 --dport 443 -j ACCEPT
 ```
 __Lưu ý__: ưu tiên các rule DROP trước các rule ACCEPT để lọc đầy đủ các điều kiện ban đầu hơn
 ### Đặt comment cho 1 iptables rules bất kỳ.
