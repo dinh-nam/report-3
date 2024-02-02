@@ -370,3 +370,4 @@ Ví dụ: `iptables -A INPUT -p tcp --dport 25 -j DROP` - chặn mọi kết n�
 iptables -R INPUT 11 -p tcp --dport 25 -j DROP -m comment --comment "Block port 25"
 iptables -t filter -L INPUT -n --line-number
 ```
+## Kết thúc
